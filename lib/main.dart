@@ -60,9 +60,20 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextButton(onPressed: openTextDialog, child: const Text('Paste Text')),
-            TextButton(onPressed: uploadDocument, child: const Text('Upload Document')),
-            TextButton(onPressed: openCamera, child: const Text('Take Picture'))
+            TextButton.icon(
+                icon: const Icon(Icons.camera),
+                label: const Text('Take Picture'),
+                onPressed: openCamera),
+            TextButton.icon(
+              icon: const Icon(Icons.paste),
+              label: const Text('Paste Text'),
+              onPressed: openTextDialog,
+            ),
+            TextButton.icon(
+              icon: const Icon(Icons.upload),
+              label: const Text('Upload Document'),
+              onPressed: uploadDocument,
+            ),
           ],
         ),
       ),
@@ -112,8 +123,14 @@ class _MyHomePageState extends State<MyHomePage> {
         context: context,
         builder: (BuildContext context) {
           return Stack(children: [
-            CameraPreview(camController),
-            IconButton(onPressed: takePicture, icon: const Icon(Icons.camera)),
+            Expanded(child: CameraPreview(camController)),
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: IconButton(
+                    onPressed: takePicture,
+                    icon: const Icon(Icons.camera),
+                    iconSize: 60,
+                    color: Colors.orange)),
           ]);
         },
       );
@@ -134,6 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void takePicture() async {
     final XFile file = await camController.takePicture();
+    Navigator.of(context).pop();
     Gpthelper.apiHelper(image: file);
   }
 }
