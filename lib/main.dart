@@ -1,3 +1,4 @@
+import 'package:comprehelper/gpt_helper.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -51,13 +52,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void openTextDialog() {
+    final controller = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Paste Text'),
-          content: const TextField(
-            decoration: InputDecoration(hintText: 'Enter your text here'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'Enter your text here'),
           ),
           actions: <Widget>[
             TextButton(
@@ -68,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TextButton(
               onPressed: () {
+                Gpthelper.apiHelper(text: controller.text);
                 Navigator.of(context).pop();
               },
               child: const Text('Done'),
