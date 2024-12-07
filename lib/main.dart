@@ -1,7 +1,11 @@
+import 'package:camera/camera.dart';
 import 'package:comprehelper/gpt_helper.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+late List<CameraDescription> cameras;
+
+void main() async {
+  cameras = await availableCameras();
   runApp(const MyApp());
 }
 
@@ -31,6 +35,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late CameraController camController;
+
+  @override
+  void initState() {
+    super.initState();
+    camController = CameraController(cameras[0], ResolutionPreset.max);
+  }
+
+  @override
+  void dispose() {
+    // camController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
           title: const Text('Paste Text'),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(hintText: 'Enter your text here'),
+            minLines: 3,
+            decoration: const InputDecoration(hintText: 'Paste here'),
           ),
           actions: <Widget>[
             TextButton(
@@ -84,5 +103,37 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void uploadDocument() {}
 
-  void openCamera() {}
+  void openCamera() async {
+    camController.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Stack(children: [
+            CameraPreview(camController),
+            IconButton(onPressed: takePicture, icon: const Icon(Icons.camera)),
+          ]);
+        },
+      );
+      setState(() {});
+    }).catchError((Object e) {
+      if (e is CameraException) {
+        switch (e.code) {
+          case 'CameraAccessDenied':
+            // Handle access errors here.
+            break;
+          default:
+            // Handle other errors here.
+            break;
+        }
+      }
+    });
+  }
+
+  void takePicture() async {
+    final XFile file = await camController.takePicture();
+    Gpthelper.apiHelper(image: file);
+  }
 }
