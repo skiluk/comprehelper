@@ -89,7 +89,6 @@ class _MyHomePageState extends State<MyHomePage> {
           title: const Text('Paste Text'),
           content: TextField(
             controller: controller,
-            minLines: 3,
             decoration: const InputDecoration(hintText: 'Paste here'),
           ),
           actions: <Widget>[
@@ -101,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TextButton(
               onPressed: () {
-                Gpthelper.apiHelper(text: controller.text);
+                outputDialog(text: controller.text);
                 Navigator.of(context).pop();
               },
               child: const Text('Done'),
@@ -152,6 +151,48 @@ class _MyHomePageState extends State<MyHomePage> {
   void takePicture() async {
     final XFile file = await camController.takePicture();
     Navigator.of(context).pop();
-    Gpthelper.apiHelper(image: file);
+    outputDialog(image: file);
+  }
+
+  void outputDialog({String? text, XFile? image}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Output Options'),
+          content: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextButton.icon(
+                    icon: const Icon(Icons.book),
+                    label: const Text('Story'),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await Gpthelper.apiHelper(
+                          context: context, text: text, image: image, output: OutputType.story);
+                    }),
+                TextButton.icon(
+                    icon: const Icon(Icons.mic_external_on_sharp),
+                    label: const Text('Song'),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await Gpthelper.apiHelper(
+                          context: context, text: text, image: image, output: OutputType.song);
+                    }),
+                TextButton.icon(
+                    icon: const Icon(Icons.summarize),
+                    label: const Text('Summary'),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await Gpthelper.apiHelper(
+                          context: context, text: text, image: image, output: OutputType.summary);
+                    }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
